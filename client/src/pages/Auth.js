@@ -1,10 +1,14 @@
 import { useEffect, useState } from "react";
+import { useCookies } from "react-cookie";
 
 export default function Auth() {
 
     const [mode, setMode] = useState('login');
     const [errors, setErrors] = useState([]);
 
+    const [cookies, setCookie, removeCookie] = useCookies(null);
+
+    // clearing all input fields on mode switch
     useEffect(() => {
         const inputs = document.querySelectorAll('input');
         for (let i = 0; i <= inputs.length - 1; i++) {
@@ -20,7 +24,7 @@ export default function Auth() {
         // db query
     }
 
-    function handleSignup(e) {
+    async function handleSignup(e) {
         e.preventDefault();
         const username = e.target.username.value;
         const email = e.target.email.value;
@@ -62,11 +66,34 @@ export default function Auth() {
             }
         }
 
-        // check if the username isn't already used
-
-        // check if the email isn't already used
-
         setErrors(newErrors);
+
+        if (errors.length === 0) {
+            const response = await fetch('http://localhost:3001/api/v1/signup', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    username: username,
+                    email: email,
+                    password: password
+                })
+            }).then(response => response.json());
+
+            // check if the username isn't already used
+            // check if the email isn't already used
+            if (response.error == '23505') {
+                // FIXME: error keeps toggling
+                if (!errors.includes("Username or e-mail is already taken")) {
+                    setErrors([...errors, "Username or e-mail is already taken"]);
+                }
+                
+            } else {
+                setCookie('username', response.username);
+                setCookie('authToken', response.token);
+                setErrors([]);
+                window.location.reload();
+            }
+        }
     }
 
     return (

@@ -1,11 +1,13 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useCookies } from 'react-cookie'; 
 
 import Auth from './pages/Auth';
 import Main from './pages/Main';
 
  export default function App() {
 
-    const authToken = null; // hardcoded value
+    const [cookies, setCookie, removeCookie] = useCookies(null);
+    const authToken = cookies.authToken;
 
     return (
         <BrowserRouter>
