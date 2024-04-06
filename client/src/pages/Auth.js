@@ -1,9 +1,16 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function Auth() {
 
     const [mode, setMode] = useState('login');
     const [errors, setErrors] = useState([]);
+
+    useEffect(() => {
+        const inputs = document.querySelectorAll('input');
+        for (let i = 0; i <= inputs.length - 1; i++) {
+            inputs[i].value = '';
+        }
+    }, [mode]);
 
     function handleLogin(e) {
         e.preventDefault();
@@ -69,7 +76,7 @@ export default function Auth() {
 
                 {mode === 'login' ?
 
-                    <form className="flex flex-col gap-3 bg-neutral-400 p-8 rounded-2xl w-80 lg:w-[400px]" onSubmit={(e) => handleLogin(e)}>
+                    <form className="flex flex-col gap-3 bg-neutral-400 p-8 rounded-2xl w-80 lg:w-[450px]" onSubmit={(e) => handleLogin(e)}>
                         <input className="rounded px-2 py-1" type="text" placeholder="E-mail or username" name="username" required></input>
                         <input className="rounded px-2 py-1" type="password" placeholder="Password" name="password" required></input>
                         <button className="bg-purple-700 px-6 py-1 rounded text-neutral-200" type="submit">Log in</button>
@@ -86,7 +93,7 @@ export default function Auth() {
                         </div>
                     </form> :
 
-                    <form className="flex flex-col gap-3 bg-neutral-400 p-8 rounded-2xl w-80 lg:w-[400px]" onSubmit={(e) => handleSignup(e)}>
+                    <form className="flex flex-col gap-3 bg-neutral-400 p-8 rounded-2xl w-80 lg:w-[450px]" onSubmit={(e) => handleSignup(e)}>
                         <input className="rounded px-2 py-1" type="text" placeholder="Username" name="username" required></input>
                         <input className="rounded px-2 py-1" type="email" placeholder="E-mail" name="email" required></input>
                         <input className="rounded px-2 py-1" type="email" placeholder="Confirm e-mail" name="confirmEmail" required></input>
@@ -97,8 +104,12 @@ export default function Auth() {
 
                         {errors.length > 0 && 
                             <div className="border border-red-600 rounded bg-red-300">
-                                <ul className="font-semibold text-red-600 my-[-10px] text-center py-3">
-                                    {errors.map((error) => <li key={error}>{error}</li>)}
+                                <ul className="font-semibold text-red-600 my-[-10px] py-3 flex flex-col justify-center items-center">
+                                    {errors.map((error) => 
+                                    <li className="flex justify-center items-center gap-1">
+                                        <svg className="w-3 h-3 fill-red-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><path d="M376.6 84.5c11.3-13.6 9.5-33.8-4.1-45.1s-33.8-9.5-45.1 4.1L192 206 56.6 43.5C45.3 29.9 25.1 28.1 11.5 39.4S-3.9 70.9 7.4 84.5L150.3 256 7.4 427.5c-11.3 13.6-9.5 33.8 4.1 45.1s33.8 9.5 45.1-4.1L192 306 327.4 468.5c11.3 13.6 31.5 15.4 45.1 4.1s15.4-31.5 4.1-45.1L233.7 256 376.6 84.5z"/></svg>
+                                        <p className="text-sm" key={error}>{error}</p>
+                                    </li>)}
                                 </ul>
                             </div>
                         }
