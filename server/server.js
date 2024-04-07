@@ -23,13 +23,37 @@ app.post('/api/v1/signup', async (req, res) => {
         [username, email, hashedPassword]);
         const user = result.rows[0];
         const token = jwt.sign({ id: user.user_id }, 'secret', { expiresIn: '1h' });
-        res.json({ token: token, username: user.username });
+        res.json({ token: token });
     } catch (err) {
         if (err.code === '23505') {
             res.json({ error: 23505 });
         } else {
             res.status(500);
         }
+    }
+});
+
+// log in
+app.post('/api/v1/login', async (req, res) => {
+    const { username, password } = req.body;
+
+    try {
+        const result = await pool.query('select * from users where username = $1 or email = $1',
+        [username]);
+        if (result.rows.length === 0) {
+            res.json({ error: "User doesn't exist" });
+        } else {
+            const user = result.rows[0];
+            const isPasswordCorrect = await bcrypt.compare(password, user.password);
+            if (isPasswordCorrect) {
+                const token = jwt.sign({ id: user.user_id }, 'secret', { expiresIn: '1h' });
+                res.json({ token: token });
+            } else {
+                res.json({ error: 'Password is incorrect' });
+            }
+        }
+    } catch (err) {
+        res.status(500);
     }
 });
 

@@ -14,14 +14,33 @@ export default function Auth() {
         for (let i = 0; i <= inputs.length - 1; i++) {
             inputs[i].value = '';
         }
+        setErrors([]);
     }, [mode]);
 
-    function handleLogin(e) {
+    async function handleLogin(e) {
         e.preventDefault();
         const username = e.target.username.value;
         const password = e.target.password.value;
 
-        // db query
+        const response = await fetch('http://localhost:3001/api/v1/login', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                username: username,
+                password: password
+            })
+        }).then(response => response.json());
+
+        if (response.error) {
+            // FIXME: errors should disappear after resolving
+            if (!errors.includes(response.error)) {
+                setErrors([...errors, response.error]);
+            }
+        } else {
+                setCookie('authToken', response.token);
+                setErrors([]);
+                window.location.reload();
+        }
     }
 
     async function handleSignup(e) {
@@ -62,7 +81,7 @@ export default function Auth() {
             }
         } else {
             if (newErrors.includes("Password should be between 6 and 16 characters")) {
-                const newErrors = errors.filter(error => error !== "Password should be between 6 and 16 characters");
+                newErrors = errors.filter(error => error !== "Password should be between 6 and 16 characters");
             }
         }
 
@@ -88,7 +107,6 @@ export default function Auth() {
                 }
                 
             } else {
-                setCookie('username', response.username);
                 setCookie('authToken', response.token);
                 setErrors([]);
                 window.location.reload();
@@ -108,6 +126,19 @@ export default function Auth() {
                         <input className="rounded px-2 py-1" type="password" placeholder="Password" name="password" required></input>
                         <button className="bg-purple-700 px-6 py-1 rounded text-neutral-200" type="submit">Log in</button>
                         <p className="text-neutral-800 font-semibold text-center">Don't have an account yet? <button className="text-purple-700" onClick={() => setMode('signup')}>Create an account</button></p>
+
+                        {errors.length > 0 && 
+                            <div className="border border-red-600 rounded bg-red-300">
+                                <ul className="font-semibold text-red-600 my-[-10px] py-3 flex flex-col justify-center items-center">
+                                    {errors.map((error) => 
+                                    <li className="flex justify-center items-center gap-1">
+                                        <svg className="w-3 h-3 fill-red-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><path d="M376.6 84.5c11.3-13.6 9.5-33.8-4.1-45.1s-33.8-9.5-45.1 4.1L192 206 56.6 43.5C45.3 29.9 25.1 28.1 11.5 39.4S-3.9 70.9 7.4 84.5L150.3 256 7.4 427.5c-11.3 13.6-9.5 33.8 4.1 45.1s33.8 9.5 45.1-4.1L192 306 327.4 468.5c11.3 13.6 31.5 15.4 45.1 4.1s15.4-31.5 4.1-45.1L233.7 256 376.6 84.5z"/></svg>
+                                        <p className="text-sm" key={error}>{error}</p>
+                                    </li>)}
+                                </ul>
+                            </div>
+                        }
+
                         <div className="relative flex items-center my-2">
                             <div className="flex-grow border-t border-neutral-200"></div>
                             <span className="flex-shrink mx-4 text-neutral-200">or log in via</span>
