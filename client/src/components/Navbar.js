@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import Dropdown from '../components/Dropdown';
 
-export default function Navbar({ token }) {
+export default function Navbar() {
 
     const [showDropdown, setShowDropdown] = useState(false);
 

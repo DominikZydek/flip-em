@@ -1,5 +1,6 @@
 import { useCookies } from 'react-cookie'; 
 import Navbar from '../components/Navbar';
+import { useEffect } from 'react';
 
 export default function Main() {
 
@@ -7,7 +8,7 @@ export default function Main() {
 
     return (
         <>
-            <Navbar token={cookies.authToken}/>
+            <Navbar />
         </>
     );
 }
